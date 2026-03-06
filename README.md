@@ -13,7 +13,7 @@
 FrameKit merges the power of **Pure JavaScript utilities** with a **Modular CSS architecture**. It serves as the structural backbone for your web projects, focusing on:
 
 * **Atomic Design Philosophy:** From the smallest UI atoms to complex organisms.
-* **Zero Dependencies:** 100% Vanilla JS and Modern CSS.
+* **Zero Dependencies:** 100% JS Core and Modern CSS.
 * **Performance First:** Minimal footprint. Only import what you actually use.
 * **Developer Experience:** Clean naming conventions and a highly intuitive API.
 
