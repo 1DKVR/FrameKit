@@ -37,17 +37,17 @@ FrameKit merges the power of **Pure JavaScript utilities** with a **Modular CSS 
 Include the master stylesheet in your `<head>` to activate the FrameKit design system instantly:
 
 ```html
-<link rel="stylesheet" href="[https://1dkvr.github.io/FrameKit/core/css/master.css](https://1dkvr.github.io/FrameKit/core/css/master.css)">
+<link rel="stylesheet" href="https://1dkvr.github.io/FrameKit/core/css/master.css">
 ```
 
 ### 2. JS Utilities
 Import the storage engine directly into your scripts:
 
 ```Javascript
-import BrowserStorage from '[https://1dkvr.github.io/FrameKit/core/js/BrowserStorage.js](https://1dkvr.github.io/FrameKit/core/js/BrowserStorage.js)';
+import BrowserStorage from "https://1dkvr.github.io/FrameKit/core/js/BrowserStorage.js";
 
-const store = new BrowserStorage('myApp', 'local');
-store.set('theme', 'dark');
+const store = new BrowserStorage("myApp", "local");
+store.set("theme", "dark");
 ```
 
 ## 📂 Architecture
