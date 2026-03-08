@@ -9,7 +9,7 @@
  * @class BrowserStorage
  * @description Abstract base class handling common logic (Namespace, TTL, JSON serialization).
  * This class cannot be instantiated directly.
- * @version 1.1.0
+ * @version 1.1.3
  * @author 1D
  * @copyright Hold'inCorp. 2026
  * @license Apache-2.0
@@ -23,21 +23,46 @@ class BrowserStorage {
     /**
      * @throws {Error} Prevents instantiation of this abstract class.
      */
-    constructor(){ throw new Error(`[1D•KVR — FrameKit] ${this.name} is an abstract class. Use "LocalBS" or "SessionBS" instead.`) }
+    constructor(){ throw new Error(` ${this.name} is an abstract class. Use "LocalBS" or "SessionBS" instead.`) }
 
+    /** * Read-only project branding 
+     * @static
+     */
+    static get _author_project(){ return "[1D•KVR — FrameKit]" }
+    
     /**
      * @protected 
      * @static
      * @returns {Storage} The browser's storage interface.
      */
-    static get _storage(){ throw new Error("[FrameKit] Method '_storage' must be implemented by the child class.") }
+    static get _storage(){ throw new Error(`${this._author_project} Method "_storage" must be implemented by the child class.`) }
 
     /**
-     * Sets the global prefix for all storage keys.
+     * Sets the global prefix and optionally migrates data.
      * @static
-     * @param {string} ns - The namespace (e.g., 'myApp').
+     * @param {string} ns - The new namespace.
+     * @param {boolean} [migrate=false] - If true, moves data from the previous namespace to the new one.
      */
-    static init(ns){ this._namespace = ns }
+    static init(ns, migrate=false){
+        if (ns === this._namespace) return;
+        
+        if (migrate) {
+            const oldPrefix = `${this._namespace}_`;
+            const newPrefix = `${ns}_`;
+            
+            Object.keys(this._storage).forEach(key => {
+                if (key.startsWith(oldPrefix)) {
+                    const data = this._storage.getItem(key);
+                    const newKey = key.replace(oldPrefix, newPrefix);
+                    this._storage.setItem(newKey, data);
+                    this._storage.removeItem(key);
+                }
+            });
+            console.warn(`${this._author_project} Data migrated from ${this._namespace} to ${ns}`);
+        }
+
+        this._namespace = ns;
+    }
 
     /**
      * @private 
@@ -55,22 +80,22 @@ class BrowserStorage {
      * @param {boolean} [full=false] - If true, returns the full wrapper object including metadata.
      * @returns {T|Object|null} Original value, full object, or null if missing/expired.
      */
-    static get(key, full = false) {
-        try {
+    static get(key, full=false) {
+        try{
             const raw = this._storage.getItem(this._prefix(key));
             if (!raw) return null;
 
             const entry = JSON.parse(raw);
             
             // Time-To-Live (TTL) logic
-            if (entry?._expiry && Date.now() > entry._expiry) {
+            if(entry?._expiry && Date.now() > entry._expiry){
                 this.remove(key);
                 return null;
             }
 
             // Returns unwrapped value unless 'full' is requested
             return (entry && entry._isWrapped && !full) ? entry.value : entry;
-        } catch (e) {
+        }catch(e){
             // Fallback to raw string if JSON parsing fails
             return this._storage.getItem(this._prefix(key));
         }
@@ -83,21 +108,21 @@ class BrowserStorage {
      * @param {any} value - Data to store (Object, Array, Primitive).
      * @param {number|null} [ttl=null] - Lifespan in milliseconds (e.g., 3600000 for 1h).
      */
-    static set(key, value, ttl = null) {
+    static set(key, value, ttl=null){
         if (value === undefined) return;
 
         const payload = {
             value,
             _isWrapped: true,
-            _expiry: ttl ? Date.now() + ttl : null,
+            _expiry: ttl ? Date.now()+ttl : null,
             _timestamp: Date.now()
         };
 
-        try {
+        try{
             this._storage.setItem(this._prefix(key), JSON.stringify(payload));
-        } catch (e) {
-            if (e.name === 'QuotaExceededError') {
-                console.error('[FrameKit] Critical: Web storage quota exceeded.');
+        }catch(e){
+            if(e.name === "QuotaExceededError"){
+                console.error(`${this._author_project} Critical: Web storage quota exceeded.`);
             }
             throw e;
         }
@@ -108,20 +133,16 @@ class BrowserStorage {
      * @static
      * @param {string} key 
      */
-    static remove(key) {
-        this._storage.removeItem(this._prefix(key));
-    }
+    static remove(key){ this._storage.removeItem(this._prefix(key)) }
 
     /**
      * Wipes all data belonging to the current namespace only.
      * @static
      */
-    static clear() {
+    static clear(){
         const prefix = `${this._namespace}_`;
         Object.keys(this._storage).forEach(key => {
-            if (key.startsWith(prefix)) {
-                this._storage.removeItem(key);
-            }
+            if (key.startsWith(prefix)) this._storage.removeItem(key);
         });
     }
 
@@ -130,30 +151,24 @@ class BrowserStorage {
      * @param {number} index 
      * @returns {string|null} Key name at specified index.
      */
-    static key(index) {
-        return this._storage.key(index);
-    }
+    static key(index){ return this._storage.key(index) }
 }
 
 /**
  * @class LocalBS
  * @extends BrowserStorage
  * @description Static API for LocalStorage (Long-term persistence).
- * @example LocalBS.set('theme', 'dark');
+ * @example LocalBS.set("theme", "dark");
  */
-export class LocalBS extends BrowserStorage {
-    static get _storage() { return window.localStorage; }
-}
+export class LocalBS extends BrowserStorage { static get _storage(){ return window.localStorage }}
 
 /**
  * @class SessionBS
  * @extends BrowserStorage
  * @description Static API for SessionStorage (Volatile, cleared on tab close).
- * @example SessionBS.get('session_id');
+ * @example SessionBS.get("session_id");
  */
-export class SessionBS extends BrowserStorage {
-    static get _storage() { return window.sessionStorage; }
-}
+export class SessionBS extends BrowserStorage { static get _storage(){ return window.sessionStorage }}
 
 
 /**
