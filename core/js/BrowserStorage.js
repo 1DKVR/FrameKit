@@ -1,14 +1,12 @@
 /**
  * @file BrowserStorage.js
- * @description Professional-grade storage toolkit for FrameKit.
- * Provides a unified interface for LocalStorage, SessionStorage, and IndexedDB.
+ * @description Professional-grade storage toolkit for FrameKit. Provides a unified interface for LocalStorage, SessionStorage, and IndexedDB.
  */
 import { Ø1D } from "../../Humans.js";
 /**
  * @abstract
  * @class BrowserStorage
- * @description Abstract base class handling common logic (Namespace, TTL, JSON serialization).
- * This class cannot be instantiated directly.
+ * @description Abstract base class handling common logic (Namespace, TTL, JSON serialization). This class cannot be instantiated directly.
  * @version 1.2.0
  * @author 1D
  * @copyright Hold'inCorp. 2026
