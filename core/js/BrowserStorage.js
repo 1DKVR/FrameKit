@@ -52,9 +52,10 @@ class BrowserStorage {
      * @static
      * @template T
      * @param {string} key - Unique identifier for the data.
-     * @returns {T|null} Original value or null if missing/expired.
+     * @param {boolean} [full=false] - If true, returns the full wrapper object including metadata.
+     * @returns {T|Object|null} Original value, full object, or null if missing/expired.
      */
-    static get(key) {
+    static get(key, full = false) {
         try {
             const raw = this._storage.getItem(this._prefix(key));
             if (!raw) return null;
@@ -67,8 +68,8 @@ class BrowserStorage {
                 return null;
             }
 
-            // Returns unwrapped value if metadata exists, otherwise raw entry
-            return (entry && entry._isWrapped) ? entry.value : entry;
+            // Returns unwrapped value unless 'full' is requested
+            return (entry && entry._isWrapped && !full) ? entry.value : entry;
         } catch (e) {
             // Fallback to raw string if JSON parsing fails
             return this._storage.getItem(this._prefix(key));
