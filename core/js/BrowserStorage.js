@@ -3,7 +3,7 @@
  * @description Professional-grade storage toolkit for FrameKit.
  * Provides a unified interface for LocalStorage, SessionStorage, and IndexedDB.
  */
-
+import { Ø1D } from "../../Humans.js";
 /**
  * @abstract
  * @class BrowserStorage
@@ -18,7 +18,7 @@
  */
 class BrowserStorage {
     /** @private @static */
-    static _namespace = "1D_Fk";
+    static _namespace = `${Ø1D.alias}•${Ø1D.projet}`;
 
     /**
      * @throws {Error} Prevents instantiation of this abstract class.
@@ -28,7 +28,7 @@ class BrowserStorage {
     /** * Read-only project branding 
      * @static
      */
-    static get _author_project(){ return "[1D•KVR — FrameKit]" }
+    static get _author_project(){ return `[${Ø1D.fullName} — ${Ø1D.projet}]` }
     
     /**
      * @protected 
