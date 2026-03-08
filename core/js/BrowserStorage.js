@@ -287,11 +287,20 @@ export class IndexedBS {
             /** Retrieves a record by its key. */
             get: (key) => exec(getStore("readonly").get(key)),
             
-            /** Retrieves all records from the store. */
-            getAll: () => exec(getStore("readonly").getAll()),
+            /** Retrieves the key for a specific record. */
+            getKey: (key) => exec(getStore("readonly").getKey(key)),
             
-            /** Deletes a record by its key. */
+            /** Retrieves all records. */
+            getAll: () => exec(getStore("readonly").getAll()),
+
+            /** Counts the number of records. */
+            count: () => exec(getStore("readonly").count()),
+            
+            /** Deletes a record by key. */
             delete: (key) => exec(getStore("readwrite").delete(key)).then(res => { notify("delete", key); return res; }),
+
+            /** Clears all records in this specific store. */
+            clear: () => exec(getStore("readwrite").clear()).then(res => { notify("clear", null); return res; }),
             
             /** Filters data via a cursor. */
             filter: async (predicate) => {
