@@ -9,9 +9,9 @@
  * @class BrowserStorage
  * @description Abstract base class handling common logic (Namespace, TTL, JSON serialization).
  * This class cannot be instantiated directly.
- * @version 1.1.3
+ * @version 1.2.0
  * @author 1D
- * @copyright Hold'inCorp. 2026
+ * @copyright Hold'inCorp. 2026
  * @license Apache-2.0
  * @updated 26.03.08
  * @link https://developer.mozilla.org/docs/Web/API/Web_Storage_API
@@ -23,7 +23,7 @@ class BrowserStorage {
     /**
      * @throws {Error} Prevents instantiation of this abstract class.
      */
-    constructor(){ throw new Error(` ${this.name} is an abstract class. Use "LocalBS" or "SessionBS" instead.`) }
+    constructor(){ throw new Error(`${this.name} is an abstract class. Use "LocalBS" or "SessionBS" instead.`) }
 
     /** * Read-only project branding 
      * @static
@@ -106,13 +106,13 @@ class BrowserStorage {
      * @static
      * @param {string} key - Unique identifier.
      * @param {any} value - Data to store (Object, Array, Primitive).
-     * @param {number|null} [ttl=null] - Lifespan in milliseconds (e.g., 3600000 for 1h).
+     * @param {number|null} [ttl=null] - Lifespan in milliseconds.
      */
     static set(key, value, ttl=null){
         if (value === undefined) return;
 
         const payload = {
-            value,                // ES6 => value:`${value}`
+            value, // ES6 => value:value
             _isWrapped: true,
             _expiry: ttl ? Date.now()+ttl : null,
             _timestamp: Date.now()
@@ -121,10 +121,8 @@ class BrowserStorage {
         try{
             this._storage.setItem(this._prefix(key), JSON.stringify(payload));
         }catch(e){
-            if(e.name === "QuotaExceededError"){
-                console.error(`${this._author_project} Critical: Web storage quota exceeded.`);
-            }
-            throw e;
+            if(e.name === "QuotaExceededError") console.error(`${this._author_project} Storage quota exceeded.`);
+            throw e; 
         }
     }
 
@@ -187,8 +185,7 @@ export class SessionBS extends BrowserStorage { static get _storage(){ return wi
 
 /**
  * @class IndexedBS
- * @description High-performance Promise-based wrapper for IndexedDB.
- * Best suited for large files or complex databases.
+ * @description High-performance Promise-based wrapper for IndexedDB with full Store support.
  */
 export class IndexedBS {
     #db = null;
@@ -250,6 +247,14 @@ export class IndexedBS {
         });
     }
 
+    /** Closes the database connection cleanly. */
+    close(){
+        if(this.#db){
+            this.#db.close();
+            this.#db = null;
+        }
+    }
+
     /** @private */
     #setupAccessors(){
         Object.keys(this.#stores).forEach(name => {
@@ -270,7 +275,6 @@ export class IndexedBS {
 
         /** @private */
         const notify = (action, payload) => {
-            // Automatic logging if debug mode is enabled
             if(this.debug){
                 console.log(`%c[1D — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
             }
@@ -301,7 +305,7 @@ export class IndexedBS {
 
             /** Clears all records in this specific store. */
             clear: () => exec(getStore("readwrite").clear()).then(res => { notify("clear", null); return res; }),
-            
+
             /** Filters data via a cursor. */
             filter: async (predicate) => {
                 const results = [];
@@ -315,6 +319,16 @@ export class IndexedBS {
                         } else resolve(results);
                     };
                 });
+            },
+                        
+            /** * Specialized search using an index.
+             * @param {string} indexName - The name of the index to use.
+             * @param {any} value - The value to look for.
+             */
+            find: (indexName, value) => {
+                const store = getStore("readonly");
+                const index = store.index(indexName);
+                return exec(index.get(value));
             },
 
             /** * Observes real-time changes on this store.
