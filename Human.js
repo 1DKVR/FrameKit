@@ -132,7 +132,7 @@ class Human {
     get isVerified(){ return this.#data?.remote === true }
 
     /** @returns {string} The developer's GitHub profile URL. */
-    get profile(){ return `https://github.com/${this.fullName.toLowerCase()}` }
+    get profile(){ return `https://github.com/${this.fullName}` } //.toLowerCase()}` }
 }
 
 /**
