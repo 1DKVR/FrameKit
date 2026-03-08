@@ -1,10 +1,10 @@
 /**
  * @file Human.js
  * @description Dynamic identity resolver.
- * This module enforces authorship integrity by dynamically resolving developer and project metadata through official hosting URLs (GitHub/CDNs).
+ * This module enforces authorship integrity by dynamically resolving developer, project and branch metadata.
  * * Inspired by the "humans.txt" philosophy: "We are people, not machines."
  * @see https://humanstxt.org/
- * @version 1.0.0
+ * @version 1.2.0
  * @author 1D
  * @updated 2026.03.08
  * @copyright © 2026 Hold'inCorp. All rights reserved.
@@ -32,7 +32,7 @@ class Human {
      * Constructs the Human singleton.
      * Prevents multiple instantiations and triggers the metadata resolution.
      */
-    constructor() {
+    constructor(){
         if (Human.instance) return Human.instance;
         this.#data = this.#resolve();
         Human.instance = this;
@@ -44,21 +44,32 @@ class Human {
      * @private
      * @returns {Object|null} The resolved metadata or null if the context is unauthorized.
      */
-    #resolve() {
+    #resolve(){
         const url = import.meta.url;
-        try{
-            let author, project;
+        try {
+            let author, project, branch = null;
 
             if(url.includes("github.io")){
                 // Pattern for GitHub Pages: https://[author].github.io/[project]/...
                 const urlObj = new URL(url);
                 author = urlObj.hostname.split(".")[0];
                 project = urlObj.pathname.split("/")[1] || null;
+                // GitHub Pages doesn't expose the branch in the URL, but it's a "live" environment.
+                branch = ""; 
             }else if(url.includes("jsdelivr.net")){
-                // Pattern for jsDelivr: https://cdn.jsdelivr.net/gh/[author]/[project]@...
+                // Pattern for jsDelivr: https://cdn.jsdelivr.net/gh/[author]/[project]@[branch]/...
                 const pathParts = new URL(url).pathname.split("/");
                 author = pathParts[2];
-                project = pathParts[3].split("@")[0];
+                const projectPart = pathParts[3];
+                
+                if(projectPart.includes("@")){
+                    const split = projectPart.split("@");
+                    project = split[0];
+                    branch = split[1];
+                }else{
+                    project = projectPart;
+                    branch = "latest";
+                }
             }else{
                 throw new Error("Unauthorized execution context. Script must be hosted on official GitHub or CDN mirrors.");
             }
@@ -67,6 +78,7 @@ class Human {
                 alias: author.substring(0, 2).toUpperCase(),
                 fullName: author.substring(0, 2).toUpperCase() + author.slice(2).toLowerCase(),
                 project: project,
+                branch: branch,
                 remote: true
             };
         }catch(error){
@@ -95,23 +107,29 @@ class Human {
         return this.#data;
     }
 
-    /** @returns {string} The developer alias (e.g., "1D"). */
-    get alias(){ return this._check.alias; }
+    /** @returns {string} The developer alias. */
+    get alias(){ return this._check.alias }
 
-    /** @returns {string} The developer full name (e.g., "1Dkvr"). */
-    get fullName(){ return this._check.fullName; }
+    /** @returns {string} The developer full name. */
+    get fullName(){ return this._check.fullName }
 
     /** @returns {string} The current project name. */
-    get project(){ return this._check.project ?? "GitHub"; }
+    get project(){ return this._check.project ?? "GitHub" }
+
+    /** @returns {string|null} The resolved branch or version. */
+    get branch(){ return this._check.branch }
 
     /** @returns {string} The complete branding signature. */
-    get brand(){ return `[${this.fullName} — ${this.project}]`; }
+    get brand(){ 
+        const b = this.branch ? `@${this.branch}` : "";
+        return `[${this.fullName} — ${this.project}${b}]`; 
+    }
 
     /** @returns {boolean} True if running from a verified remote host. */
-    get isVerified(){ return this.#data?.remote === true; }
+    get isVerified(){ return this.#data?.remote === true }
 
     /** @returns {string} The developer's GitHub profile URL. */
-    get profile(){ return `https://github.com/${this.fullName.toLowerCase()}`; }
+    get profile(){ return `https://github.com/${this.fullName.toLowerCase()}` }
 }
 
 /**
