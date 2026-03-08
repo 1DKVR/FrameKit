@@ -276,7 +276,7 @@ export class IndexedBS {
         /** @private */
         const notify = (action, payload) => {
             if(this.debug){
-                console.log(`%c[1D — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
+                console.log(`%c[${Ø1D.alias} — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
             }
             listeners.forEach(fn => fn({ action, payload, storeName }));
         };
