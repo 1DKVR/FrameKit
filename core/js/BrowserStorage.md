@@ -86,4 +86,4 @@ The module automatically handles critical errors:
 - **ConstraintError** : Rejected if you attempt an `.add()` on an existing key.
 - **JSON Parsing** : If storage data is corrupted, `.get()` returns the raw string instead of crashing.
 
-_Engineered by [1D](https://github.com/1DKVR) — Part of FrameKit Project._
+_Engineered by [1D](https://github.com/1Dkvr) — Part of FrameKit Project._
