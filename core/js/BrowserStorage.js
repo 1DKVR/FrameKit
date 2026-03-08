@@ -198,31 +198,37 @@ export class IndexedBS {
     #version;
 
     /**
+     * Enable/Disable automatic logging for all operations.
+     * @public
+     */
+    debug = false;
+
+    /**
      * @param {string} dbName - Database name.
      * @param {Record<string, StoreConfig>} stores - Object store configuration.
      * @param {number} [version=1] - Database version number.
      */
-    constructor(dbName, stores = {}, version = 1) {
+    constructor(dbName, stores = {}, version = 1){
         this.#dbName = dbName;
         this.#stores = stores;
         this.#version = version;
     }
 
     /** @returns {Record<string, any>} CRUD API for each configured store. */
-    get api() { return this.#api; }
+    get api(){ return this.#api }
 
     /**
      * Initializes connection to IndexedDB and configures stores.
      * @returns {Promise<IndexedBS>}
      */
-    async open() {
+    async open(){
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.#dbName, this.#version);
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
                 Object.entries(this.#stores).forEach(([name, config]) => {
-                    if (!db.objectStoreNames.contains(name)) {
+                    if(!db.objectStoreNames.contains(name)){
                         const store = db.createObjectStore(name, {
                             keyPath: config.keyPath || "id",
                             autoIncrement: config.autoIncrement ?? true
@@ -245,14 +251,14 @@ export class IndexedBS {
     }
 
     /** @private */
-    #setupAccessors() {
+    #setupAccessors(){
         Object.keys(this.#stores).forEach(name => {
             this.#api[name] = this.#createStoreInterface(name);
         });
     }
 
     /** @private */
-    #createStoreInterface(storeName) {
+    #createStoreInterface(storeName){
         const listeners = new Set();
         const getStore = (mode) => this.#db.transaction(storeName, mode).objectStore(storeName);
         
@@ -263,7 +269,13 @@ export class IndexedBS {
         });
 
         /** @private */
-        const notify = (action, payload) => listeners.forEach(fn => fn({ action, payload, storeName }));
+        const notify = (action, payload) => {
+            // Automatic logging if debug mode is enabled
+            if(this.debug){
+                console.log(`%c[IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
+            }
+            listeners.forEach(fn => fn({ action, payload, storeName }));
+        };
 
         return {
             /** Adds a new record. */
@@ -288,7 +300,7 @@ export class IndexedBS {
                 return new Promise((resolve) => {
                     store.openCursor().onsuccess = (e) => {
                         const cursor = e.target.result;
-                        if (cursor) {
+                        if(cursor){
                             if (predicate(cursor.value)) results.push(cursor.value);
                             cursor.continue();
                         } else resolve(results);
