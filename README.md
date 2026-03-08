@@ -69,4 +69,4 @@ Looking for a high-efficiency alternative to pre-existing frameworks? FrameKit o
 ## 🤝 License & Contribution
 FrameKit is an open-source project released under the Apache License 2.0. You are free to fork, modify, and use it for both personal and commercial projects.
 
-Engineered with ❤️ by [1D](https://github.com/1DKVR)
+Engineered with ❤️ by [1D](https://github.com/1Dkvr)
