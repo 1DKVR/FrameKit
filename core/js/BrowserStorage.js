@@ -93,11 +93,8 @@ class BrowserStorage {
                 return null;
             }
 
-            // Explicit logic for full object return
-            if (full) return entry;
-
-            // Returns unwrapped value if it was stored with FrameKit wrapper
-            return (entry && entry._isWrapped) ? entry.value : entry;
+            // Returns unwrapped value unless 'full' is requested
+            return (entry && entry._isWrapped && !full) ? entry.value : entry;
         }catch(e){
             // Fallback to raw string if JSON parsing fails
             return this._storage.getItem(this._prefix(key));
