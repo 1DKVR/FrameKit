@@ -28,14 +28,14 @@ class BrowserStorage {
     /** * Read-only project branding 
      * @static
      */
-    static get _author_project(){ return `[${Ø1D.fullName} — ${Ø1D.projet}]` }
+    static get _author_project(){ return `${Ø1D.fullName} — ${Ø1D.projet}` }
     
     /**
      * @protected 
      * @static
      * @returns {Storage} The browser's storage interface.
      */
-    static get _storage(){ throw new Error(`${this._author_project} Method "_storage" must be implemented by the child class.`) }
+    static get _storage(){ throw new Error(`[${this._author_project}] Method "_storage" must be implemented by the child class.`) }
 
     /**
      * Sets the global prefix and optionally migrates data.
@@ -58,7 +58,7 @@ class BrowserStorage {
                     this._storage.removeItem(key);
                 }
             });
-            console.warn(`${this._author_project} Data migrated from ${this._namespace} to ${ns}`);
+            console.warn(`[${this._author_project}] Data migrated from ${this._namespace} to ${ns}`);
         }
 
         this._namespace = ns;
@@ -121,7 +121,7 @@ class BrowserStorage {
         try{
             this._storage.setItem(this._prefix(key), JSON.stringify(payload));
         }catch(e){
-            if(e.name === "QuotaExceededError") console.error(`${this._author_project} Storage quota exceeded.`);
+            if(e.name === "QuotaExceededError") console.error(`[${this._author_project}] Storage quota exceeded.`);
             throw e; 
         }
     }
@@ -276,7 +276,7 @@ export class IndexedBS {
         /** @private */
         const notify = (action, payload) => {
             if(this.debug){
-                console.log(`%c[${Ø1D.alias} — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
+                console.log(`%c[${Ø1D.alias} — ${Ø1D.project} — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
             }
             listeners.forEach(fn => fn({ action, payload, storeName }));
         };
