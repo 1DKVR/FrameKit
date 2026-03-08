@@ -122,7 +122,7 @@ class Human {
     /** @returns {string} The complete branding signature. */
     get brand(){ 
         const b = this.branch ? `@${this.branch}` : "";
-        return `[${this.fullName} — ${this.project}${b}]`; 
+        return `${this.fullName} — ${this.project}${b}`; 
     }
 
     /** @returns {boolean} True if running from a verified remote host. */
