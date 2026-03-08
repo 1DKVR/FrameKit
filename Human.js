@@ -117,13 +117,16 @@ class Human {
     get project(){ return this._check.project ?? "GitHub" }
 
     /** @returns {string|null} The resolved branch or version. */
-    get branch(){ return this._check.branch }
+    get branch(){ 
+        const b = this._check.branch;
+        return b ? `@${b}` : "";
+    }
 
     /** @returns {string} The complete branding signature. */
-    get brand(){ 
-        const b = this.branch ? `@${this.branch}` : "";
-        return `${this.fullName} — ${this.project}${b}`; 
-    }
+    get branding(){ return `${this.fullName} — ${this.project}${b}`; }
+    
+    /** @returns {string} The simple branding signature. */
+    get brand(){ return `${this.alias} — ${this.project}`; }
 
     /** @returns {boolean} True if running from a verified remote host. */
     get isVerified(){ return this.#data?.remote === true }
