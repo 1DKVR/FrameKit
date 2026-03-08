@@ -4,7 +4,7 @@
  * This module enforces authorship integrity by dynamically resolving developer and project metadata through official hosting URLs (GitHub/CDNs).
  * * Inspired by the "humans.txt" philosophy: "We are people, not machines."
  * @see https://humanstxt.org/
- * @version 1.1.0
+ * @version 1.0.0
  * @author 1D
  * @updated 2026.03.08
  * @copyright © 2026 Hold'inCorp. All rights reserved.
