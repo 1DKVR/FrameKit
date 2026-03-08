@@ -112,7 +112,7 @@ class BrowserStorage {
         if (value === undefined) return;
 
         const payload = {
-            value,
+            value,                // ES6 => value:`${value}`
             _isWrapped: true,
             _expiry: ttl ? Date.now()+ttl : null,
             _timestamp: Date.now()
@@ -272,7 +272,7 @@ export class IndexedBS {
         const notify = (action, payload) => {
             // Automatic logging if debug mode is enabled
             if(this.debug){
-                console.log(`%c[IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
+                console.log(`%c[1D — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
             }
             listeners.forEach(fn => fn({ action, payload, storeName }));
         };
