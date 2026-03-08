@@ -1,20 +1,21 @@
 /**
- * @file Humans.js
+ * @file Human.js
  * @description Dynamic identity resolver.
  * This module enforces authorship integrity by dynamically resolving developer and project metadata through official hosting URLs (GitHub/CDNs).
  * * Inspired by the "humans.txt" philosophy: "We are people, not machines."
  * @see https://humanstxt.org/
  * @version 1.0.0
  * @author 1D
+ * @updated 2026.03.08
  * @copyright © 2026 Hold'inCorp. All rights reserved.
  */
 
 /**
- * @class Humans
+ * @class Human
  * @description Singleton utility class designed to extract and protect the developer's identity and project branding. 
  * It uses the execution context (import.meta.url) to verify that the script is running from an authorized source.
  */
-class Humans {
+class Human {
     /** * Internal metadata storage.
      * @type {Object|null} 
      * @private 
@@ -22,19 +23,19 @@ class Humans {
     #data = null;
 
     /** * @static 
-     * @type {Humans|null}
-     * @description Holds the unique instance of the Humans class. 
+     * @type {Human|null}
+     * @description Holds the unique instance of the Human class. 
      */
     static instance = null;
 
     /**
-     * Constructs the Humans singleton.
+     * Constructs the Human singleton.
      * Prevents multiple instantiations and triggers the metadata resolution.
      */
     constructor() {
-        if (Humans.instance) return Humans.instance;
+        if (Human.instance) return Human.instance;
         this.#data = this.#resolve();
-        Humans.instance = this;
+        Human.instance = this;
     }
 
     /**
@@ -69,15 +70,15 @@ class Humans {
                 remote: true
             };
         }catch(error){
-            console.error(`[Humans — CRITICAL] ${error.message}`);
+            console.error(`[Human — CRITICAL] ${error.message}`);
             return null;
         }
     }
 
     /**
-     * Dynamically adapts the project name if Humans.js is used as an external library.
+     * Dynamically adapts the project name if Human.js is used as an external library.
      * @param {string} name - The name of the calling project.
-     * @returns {Humans} The instance for chaining.
+     * @returns {Human} The instance for chaining.
      */
     attach(name){
         if (this.#data) this.#data.project = name;
@@ -90,7 +91,7 @@ class Humans {
      * @throws {ReferenceError} If metadata is missing.
      */
     get _check(){
-        if (!this.#data) throw new ReferenceError("Humans: Metadata resolution failed.");
+        if (!this.#data) throw new ReferenceError("Human: Metadata resolution failed.");
         return this.#data;
     }
 
@@ -116,9 +117,9 @@ class Humans {
 /**
  * Global identity instance: Ø1D
  * Frozen to ensure immutability and authorship protection.
- * @constant {Humans}
+ * @constant {Human}
  */
-const Ø1D = new Humans();
+const Ø1D = new Human();
 Object.freeze(Ø1D);
 
 /**
