@@ -1,6 +1,6 @@
 /**
  * @file BrowserStorage.js
- * @description Professional-grade storage toolkit for FrameKit. Provides a unified interface for LocalStorage, SessionStorage, and IndexedDB.
+ * @description Professional-grade storage toolkit. Provides a unified interface for LocalStorage, SessionStorage, and IndexedDB.
  */
 import { Ø1D } from "../../Humans.js";
 /**
@@ -26,7 +26,7 @@ class BrowserStorage {
     /** * Read-only project branding 
      * @static
      */
-    static get _author_project(){ return `${Ø1D.fullName} — ${Ø1D.projet}` }
+    static get _author_project(){ return Ø1D.brand }
     
     /**
      * @protected 
@@ -274,7 +274,7 @@ export class IndexedBS {
         /** @private */
         const notify = (action, payload) => {
             if(this.debug){
-                console.log(`%c[${Ø1D.alias} — ${Ø1D.project} — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
+                console.log(`%c[${Ø1D.brand} — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
             }
             listeners.forEach(fn => fn({ action, payload, storeName }));
         };
