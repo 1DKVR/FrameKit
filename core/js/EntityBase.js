@@ -3,8 +3,9 @@
  * @description Core entity management. Provides identity, lifecycle, and automatic timestamping. Built for high-performance data structures. This serves as the foundation for any object (Living beings, items, houses, etc.) requiring a unique identity and traceability.
  * @version 1.0.0
  * @author 1D
- * @updated 2026.03.08
  * @copyright © 2026 Hold'inCorp. All rights reserved.
+ * @license Apache-2.0
+ * @updated 26.03.08
  */
 
 import { Ø1D } from "./Humans.js";
