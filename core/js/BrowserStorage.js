@@ -7,16 +7,16 @@ import { Ø1D } from "../../Humans.js";
  * @abstract
  * @class BrowserStorage
  * @description Abstract base class handling common logic (Namespace, TTL, JSON serialization). This class cannot be instantiated directly.
- * @version 1.2.0
+ * @version 1.2.1523
  * @author 1D
  * @copyright Hold'inCorp. 2026
  * @license Apache-2.0
- * @updated 26.03.08
+ * @updated 26.03.09
  * @link https://developer.mozilla.org/docs/Web/API/Web_Storage_API
  */
 class BrowserStorage {
     /** @private @static */
-    static _namespace = `${Ø1D.alias}•${Ø1D.projet}`;
+    static _namespace = `${Ø1D.alias}•${Ø1D.project}`;
 
     /**
      * @throws {Error} Prevents instantiation of this abstract class.
