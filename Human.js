@@ -123,7 +123,7 @@ class Human {
     }
 
     /** @returns {string} The complete branding signature. */
-    get branding(){ return `${this.fullName} — ${this.project}${b}`; }
+    get branding(){ return `${this.fullName} — ${this.project}${this.branch}`; }
     
     /** @returns {string} The simple branding signature. */
     get brand(){ return `${this.alias} — ${this.project}`; }
