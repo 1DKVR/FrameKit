@@ -2,7 +2,7 @@
  * @file BrowserStorage.js
  * @description Professional-grade storage toolkit. Provides a unified interface for LocalStorage, SessionStorage, and IndexedDB.
  */
-import { Ø1D } from "../../Humans.js";
+import Ø1D from "../../Humans.js";
 /**
  * @abstract
  * @class BrowserStorage
