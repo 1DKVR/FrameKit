@@ -1,26 +1,31 @@
 /**
  * @file AbstractClass.js
- * @description Base class that prevents direct instantiation.
+ * @description Core utility providing a strict base for abstract classes. Ensures that specific architectural components cannot be initialized without proper inheritance.
  * @version 1.0.0
  * @author 1D
  * @copyright © 2026 Hold'inCorp. All rights reserved.
  * @license Apache-2.0
- * @updated 26.03.08
+ * @updated 2026.03.08
  */
 
-import { Ø1D } from "../../Humans.js";
+import Ø1D from "../../Humans.js";
 
 /**
  * @abstract
  * @class AbstractClass
- * @description Base class that prevents direct instantiation.
+ * @description Fundamental base class designed to prevent direct instantiation.
+ * Subclasses must call `super(true)` to bypass the abstract protection.
  */
-export class AbstractClass {
+class AbstractClass {
     /**
-     * @param {boolean} [instantiable=false] - Must be true to allow instantiation.
-     * @throws {Error} Throws if trying to instantiate the abstract class directly.
+     * @constructor
+     * @param {boolean} [instantiable=false] - Safety flag. Must be set to true by child classes via super().
+     * @throws {Error} If called directly or without the instantiable flag set to true.
      */
     constructor(instantiable = false) {
-        if (!instantiable) throw new Error(`${Ø1D.brand} — Abstract class "${this.constructor.name}" cannot be instantiated directly.`)
+        if (!instantiable) throw new Error(`${Ø1D.brand} — Abstract class "${this.constructor.name}" cannot be instantiated directly.`);
     }
 }
+
+// Dual export: allows both default and named imports
+export { AbstractClass as default, AbstractClass };
