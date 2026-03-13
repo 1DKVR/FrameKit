@@ -1,7 +1,7 @@
 /**
  * @file BrowserStorage.js
  * @description Professional-grade storage toolkit for Web Applications. Provides a unified, high-level interface for LocalStorage, SessionStorage, and IndexedDB. Implements advanced features: Namespacing, TTL (Time-To-Live), and Proxy-based IndexedDB CRUD.
- * @version 1.3.1119
+ * @version 1.5.1628
  * @author 1D
  * @copyright © 2026 Hold'inCorp. All rights reserved.
  * @license Apache-2.0
@@ -12,15 +12,15 @@ import Ø1D from "../../Humans.js";
 /**
  * @abstract
  * @class BrowserStorage
- * @description Abstract base class handling common storage logic (Namespace, TTL, JSON serialization).
- * This class serves as a blueprint and cannot be instantiated directly.
- * @link https://developer.mozilla.org/docs/Web/API/Web_Storage_API
+ * @description Abstract base class handling common storage logic (Namespace, TTL, JSON serialization). This class serves as a blueprint and cannot be instantiated directly.
+ * @see {@link https://developer.mozilla.org/docs/Web/API/Web_Storage_API}
  */
 class BrowserStorage {
     /**
      * @private 
      * @static 
-     * @type {string} Current operational namespace for key prefixing.
+     * @type {string} 
+     * @description Current operational namespace for key prefixing to prevent collisions.
      */
     static _namespace = `${Ø1D.alias}—${Ø1D.project}`;
 
@@ -29,13 +29,12 @@ class BrowserStorage {
      * @throws {Error} Prevents instantiation of this abstract class.
      */
     constructor() { 
-        throw new Error(`${this.name} is an abstract class. Use "LocalBS" or "SessionBS" instead.`);
+        throw new Error(`${this.constructor.name} is an abstract class. Use "LocalBS" or "SessionBS" instead.`);
     }
 
     /**
-     * Read-only branding identifier.
      * @static
-     * @returns {string} The project brand name.
+     * @returns {string} The project brand name for logging and headers.
      */
     static get _author_project() { return Ø1D.brand; }
     
@@ -51,11 +50,11 @@ class BrowserStorage {
     }
 
     /**
-     * Reconfigures the global namespace and optionally migrates existing data.
      * @static
      * @public
      * @param {string} ns - The new namespace string.
      * @param {boolean} [migrate=false] - If true, moves all data from the old namespace to the new one.
+     * @description Reconfigures the global namespace and optionally migrates existing data.
      */
     static init(ns, migrate = false) {
         if (ns === this._namespace) return;
@@ -79,22 +78,22 @@ class BrowserStorage {
     }
 
     /**
-     * Internal key formatter.
      * @private 
      * @static
      * @param {string} key - The raw key name.
      * @returns {string} The prefixed key (namespace_key).
+     * @description Internal key formatter.
      */
     static _prefix(key) { return `${this._namespace}_${key}`; }
 
     /**
-     * Retrieves a value from storage. Automatically handles TTL expiration and JSON decoding.
      * @static
      * @public
      * @template T
      * @param {string} key - Unique identifier for the data.
      * @param {boolean} [full=false] - If true, returns the metadata wrapper (expiry, timestamp).
      * @returns {T|Object|null} The original value, the full wrapper, or null if expired/missing.
+     * @description Retrieves a value from storage. Automatically handles TTL expiration and JSON decoding.
      */
     static get(key, full = false) {
         try {
@@ -103,28 +102,25 @@ class BrowserStorage {
 
             const entry = JSON.parse(raw);
             
-            // Time-To-Live (TTL) logic: Check if current date exceeds expiry timestamp
             if (entry?._expiry && Date.now() > entry._expiry) {
                 this.remove(key);
                 return null;
             }
 
-            // Returns unwrapped value unless the 'full' metadata object is explicitly requested
             return (entry && entry._isWrapped && !full) ? entry.value : entry;
         } catch (e) {
-            // Fallback: If JSON is corrupted or was stored as raw string, return as-is
             return this._storage.getItem(this._prefix(key));
         }
     }
 
     /**
-     * Stores data with automatic JSON serialization and metadata wrapping.
      * @static
      * @public
      * @param {string} key - Unique identifier.
      * @param {any} value - Data to store (Object, Array, Primitive).
      * @param {number|null} [ttl=null] - Optional lifespan in milliseconds from now.
      * @throws {QuotaExceededError} If browser storage limits are reached.
+     * @description Stores data with automatic JSON serialization and metadata wrapping.
      */
     static set(key, value, ttl = null) {
         if (value === undefined) return;
@@ -147,18 +143,17 @@ class BrowserStorage {
     }
 
     /**
-     * Removes a specific item from the storage using the current namespace.
      * @static
      * @public
      * @param {string} key - The identifier to remove.
+     * @description Removes a specific item from the storage using the current namespace.
      */
     static remove(key) { this._storage.removeItem(this._prefix(key)); }
 
     /**
-     * Clears all data associated with the current namespace prefix.
-     * Other application data remains untouched.
      * @static
      * @public
+     * @description Clears all data associated with the current namespace prefix.
      */
     static clear() {
         const prefix = `${this._namespace}_`;
@@ -168,11 +163,11 @@ class BrowserStorage {
     }
 
     /**
-     * Returns the name of the nth key in the storage.
      * @static
      * @public
      * @param {number} index - Integer representing the index of the key.
-     * @returns {string|null}
+     * @returns {string|null} The key name.
+     * @description Returns the name of the nth key in the storage.
      */
     static key(index) { return this._storage.key(index); }
 }
@@ -181,7 +176,6 @@ class BrowserStorage {
  * @class LocalBS
  * @extends BrowserStorage
  * @description Persistent Storage API (LocalStorage). Data survives browser restarts.
- * @example LocalBS.set("user_settings", { theme: "dark" }, 3600000); // Expires in 1h
  */
 export class LocalBS extends BrowserStorage { 
     static get _storage() { return window.localStorage; }
@@ -191,7 +185,6 @@ export class LocalBS extends BrowserStorage {
  * @class SessionBS
  * @extends BrowserStorage
  * @description Volatile Storage API (SessionStorage). Data is cleared when the tab/window is closed.
- * @example SessionBS.set("temp_token", "abc-123");
  */
 export class SessionBS extends BrowserStorage { 
     static get _storage() { return window.sessionStorage; }
@@ -201,7 +194,7 @@ export class SessionBS extends BrowserStorage {
  * @typedef {Object} IndexConfig
  * @property {string} name - The name of the index.
  * @property {string|string[]} keyPath - The path to the data to be indexed.
- * @property {IDBIndexParameters} [options] - Standard IDBIndex options (e.g., { unique: true }).
+ * @property {IDBIndexParameters} [options] - Standard IDBIndex options.
  */
 
 /**
@@ -214,19 +207,26 @@ export class SessionBS extends BrowserStorage {
 /**
  * @class IndexedBS
  * @description High-performance Promise-based wrapper for IndexedDB.
- * Provides a simplified CRUD API for multiple Object Stores with real-time subscription support.
+ * Optimized for connection lifecycle management and real-time subscription support.
  */
 export class IndexedBS {
-    /** @private */ #db = null;
-    /** @private */ #api = {};
-    /** @private */ #dbName;
-    /** @private */ #stores;
-    /** @private */ #version;
+    /** @private @type {IDBDatabase|null} */
+    #db = null;
+    /** @private @type {Record<string, any>} */
+    #api = {};
+    /** @private @type {string} */
+    #dbName;
+    /** @private @type {Record<string, StoreConfig>} */
+    #stores;
+    /** @private @type {number} */
+    #version;
+    /** @private @type {Function} */
+    #unloadHandler;
 
     /**
-     * Toggles verbose logging for debugging purposes.
      * @public
      * @type {boolean}
+     * @description Toggles verbose logging for debugging purposes.
      */
     debug = false;
 
@@ -240,21 +240,24 @@ export class IndexedBS {
         this.#dbName = dbName;
         this.#stores = stores;
         this.#version = version;
+        this.#unloadHandler = () => this.close();
     }
 
     /**
-     * Dynamic accessors for each Object Store.
      * @public
      * @returns {Record<string, any>} CRUD interfaces for configured stores. 
+     * @description Dynamic accessors generated for each Object Store after open().
      */
     get api() { return this.#api; }
 
     /**
-     * Establishes connection to IndexedDB and performs schema upgrades if necessary.
      * @public
      * @returns {Promise<IndexedBS>}
+     * @description Establishes connection to IndexedDB. Handles schema upgrades and lifecycle guards.
      */
     async open() {
+        if (this.#db) return this;
+
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.#dbName, this.#version);
 
@@ -275,28 +278,41 @@ export class IndexedBS {
 
             request.onsuccess = (event) => {
                 this.#db = event.target.result;
+
+                // Lifecycle Guard: Auto-close on version change to avoid blocking
+                this.#db.onversionchange = () => {
+                    this.close();
+                    if (this.debug) console.warn(`[${Ø1D.brand}] Connection closed due to external upgrade.`);
+                };
+
+                // Lifecycle Guard: Auto-close on tab close/refresh to prevent "Database blocked"
+                window.addEventListener('beforeunload', this.#unloadHandler);
+
                 this.#setupAccessors();
                 resolve(this);
             };
 
             request.onerror = () => reject(request.error);
+            request.onblocked = () => console.warn(`[${Ø1D.brand}] Connection blocked by another tab.`);
         });
     }
 
     /**
-     * Gracefully closes the active database connection.
      * @public
+     * @description Gracefully closes the active database connection and removes lifecycle listeners.
      */
     close() {
         if (this.#db) {
             this.#db.close();
             this.#db = null;
+            window.removeEventListener('beforeunload', this.#unloadHandler);
+            if (this.debug) console.log(`[${Ø1D.brand}] IndexedDB connection closed.`);
         }
     }
 
     /**
-     * Internal setup to generate store interfaces based on config.
      * @private 
+     * @description Internal setup to generate store interfaces based on config.
      */
     #setupAccessors() {
         Object.keys(this.#stores).forEach(name => {
@@ -305,92 +321,92 @@ export class IndexedBS {
     }
 
     /**
-     * Factory for creating CRUD operations for a specific store.
      * @private 
      * @param {string} storeName 
+     * @returns {Object} The CRUD interface for the store.
+     * @description Factory for creating CRUD operations for a specific store.
      */
     #createStoreInterface(storeName) {
         const listeners = new Set();
-        const getStore = (mode) => this.#db.transaction(storeName, mode).objectStore(storeName);
         
-        /**
-         * Standard Promise wrapper for IDBRequest.
-         * @private 
-         */
+        /** @private */
+        const getStore = (mode) => {
+            if (!this.#db) throw new Error("Database connection is closed.");
+            return this.#db.transaction(storeName, mode).objectStore(storeName);
+        };
+        
+        /** @private */
         const exec = (request) => new Promise((res, rej) => {
             request.onsuccess = () => res(request.result);
             request.onerror = () => rej(request.error);
         });
 
-        /**
-         * Internal notification and debug logging dispatcher.
-         * @private 
-         */
+        /** @private */
         const notify = (action, payload) => {
             if (this.debug) {
-                console.log(`%c[${Ø1D.brand} — IndexedBS Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
+                console.log(`%c[${Ø1D.brand} — ${this.constructor.name} Debug]%c Action [${action}] on store [${storeName}] :`, "color: #1a73e8; font-weight: bold", "color: inherit", payload);
             }
             listeners.forEach(fn => fn({ action, payload, storeName }));
         };
 
         return {
             /**
-             * Adds a new record. Fails if key already exists.
              * @param {any} item 
-             * @returns {Promise<any>} The key of the new record.
+             * @returns {Promise<any>}
+             * @description Adds a new record. Fails if key already exists.
              */
             add: (item) => exec(getStore("readwrite").add(item)).then(res => { notify("add", item); return res; }),
             
             /**
-             * Adds or updates a record.
              * @param {any} item 
-             * @returns {Promise<any>} The key of the record.
+             * @returns {Promise<any>}
+             * @description Adds or updates a record (upsert).
              */
             put: (item) => exec(getStore("readwrite").put(item)).then(res => { notify("put", item); return res; }),
             
             /**
-             * Retrieves a record by its primary key.
              * @param {any} key 
              * @returns {Promise<any>}
+             * @description Retrieves a record by its primary key.
              */
             get: (key) => exec(getStore("readonly").get(key)),
             
             /**
-             * Retrieves only the key of a record.
              * @param {any} key 
              * @returns {Promise<any>}
+             * @description Retrieves only the key of a record.
              */
             getKey: (key) => exec(getStore("readonly").getKey(key)),
             
             /**
-             * Retrieves all records from the store.
              * @returns {Promise<any[]>}
+             * @description Retrieves all records from the store.
              */
             getAll: () => exec(getStore("readonly").getAll()),
 
             /**
-             * Returns the total number of records in the store.
              * @returns {Promise<number>}
+             * @description Returns the total number of records in the store.
              */
             count: () => exec(getStore("readonly").count()),
             
             /**
-             * Deletes a record by its primary key.
              * @param {any} key 
              * @returns {Promise<void>}
+             * @description Deletes a record by its primary key.
              */
             delete: (key) => exec(getStore("readwrite").delete(key)).then(res => { notify("delete", key); return res; }),
 
             /**
-             * Wipes all records in this specific store.
              * @returns {Promise<void>}
+             * @description Wipes all records in this specific store.
              */
             clear: () => exec(getStore("readwrite").clear()).then(res => { notify("clear", null); return res; }),
 
             /**
-             * Scans the store using a cursor and returns items matching the predicate.
              * @param {Function} predicate - Condition (item => boolean).
              * @returns {Promise<any[]>}
+             * @description Scans the store using a cursor and returns items matching the predicate.
              */
             filter: async (predicate) => {
                 const results = [];
@@ -407,10 +423,10 @@ export class IndexedBS {
             },
                         
             /**
-             * Performs a high-speed search using a configured index.
              * @param {string} indexName 
              * @param {any} value 
              * @returns {Promise<any>}
+             * @description Performs a high-speed search using a configured index.
              */
             find: (indexName, value) => {
                 const store = getStore("readonly");
@@ -419,9 +435,9 @@ export class IndexedBS {
             },
 
             /**
-             * Subscribes to write operations (add, put, delete, clear) on this store.
              * @param {Function} fn - Callback receiving {action, payload, storeName}.
              * @returns {Function} Unsubscribe function.
+             * @description Subscribes to write operations (add, put, delete, clear) on this store.
              */
             subscribe: (fn) => {
                 listeners.add(fn);
