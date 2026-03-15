@@ -208,6 +208,38 @@ export class SessionBS extends BrowserStorage {
  * @class IndexedBS
  * @description High-performance Promise-based wrapper for IndexedDB.
  * Optimized for connection lifecycle management and real-time subscription support.
+ * * @example
+ * // PROFESSIONAL IMPLEMENTATION: E-Commerce Inventory Management
+ * const STORE_SCHEMA = {
+ *     products: {
+ *         keyPath: "sku", // Unique Stock Keeping Unit
+ *         autoIncrement: false,
+ *         indexes: [
+ *             { name: "by_category", keyPath: "category", options: { unique: false } },
+ *             { name: "by_status", keyPath: "status", options: { unique: false } }
+ *         ]
+ *     },
+ *     logs: { keyPath: "id", autoIncrement: true }
+ * };
+ * const inventoryDB = new IndexedBS("WarehouseManager", STORE_SCHEMA, 1);
+ * await inventoryDB.open();
+ * 
+ * // 1. Adding a premium product
+ * await inventoryDB.api.products.put({ 
+ *     sku: "TECH-MBP-2026", 
+ *     name: "MacBook Pro M5", 
+ *     category: "Laptops", 
+ *     stock: 42,
+ *     status: "active" 
+ * });
+ *
+ * // 2. High-speed lookup by category index
+ * const laptops = await inventoryDB.api.products.find("by_category", "Laptops");
+ * 
+ * // 3. Real-time Subscription for UI updates
+ * inventoryDB.api.products.subscribe(({ action, payload }) => {
+ *     if (action === "put" && payload.stock < 5) alert(`Low stock warning for ${payload.sku}!`);
+ * });
  */
 export class IndexedBS {
     /** @private @type {IDBDatabase|null} */
