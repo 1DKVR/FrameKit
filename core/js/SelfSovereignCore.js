@@ -5,7 +5,7 @@ import Ø1D from "../../Humans.js";
  * @version 1.2.2
  * @author 1D
  * @license Apache-2.0
- * @copyright © 2026 Hold"inCorp. All rights reserved.
+ * @copyright © 2026 Hold'inCorp. All rights reserved.
  */
 
 export { SelfSovereignCore as default, SelfSovereignCore };
