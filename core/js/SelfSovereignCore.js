@@ -1,3 +1,5 @@
+import Ø1D from "../../Humans.js";
+
 /**
  * @fileoverview Sovereign Identity Core Engine
  * @version 1.2.2
