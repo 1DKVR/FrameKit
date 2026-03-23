@@ -16,7 +16,7 @@ export { SelfSovereignCore as default, SelfSovereignCore };
  * It manages BIP-39 mnemonic persistence, deterministic key derivation (HKDF), and high-level 
  * cryptographic operations (AES-GCM, HMAC). The architecture is name-agnostic and IDE-optimized.
  */
-export class SelfSovereignCore {
+class SelfSovereignCore {
 
     /** 
      * @private
