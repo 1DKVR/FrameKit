@@ -1,5 +1,5 @@
-# 🔐 Self-Sovereign Core (SSC) | Professional Cryptographic Identity Engine
-## The Stateless Foundation for Deterministic & Sovereign Digital Identity (DID)
+# 🔐 Self-Sovereign Core (SSC)
+## Professional Cryptographic Identity Engine — The Stateless Foundation for Deterministic & Sovereign Digital Identity (DID)
 
 ![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)
 ![Security](https://img.shields.io/badge/Standard-BIP--39%20%2F%20HKDF-success.svg)
