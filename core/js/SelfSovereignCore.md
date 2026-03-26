@@ -1,9 +1,9 @@
 # Self-Sovereign Core (SSC)
 ## Empowering Digital Autonomy through Cryptographic Identity
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/holdincorp/ssc)
-[![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
-[![Security](https://img.shields.io/badge/Security-AES--GCM%20%7C%20ED25519-orange.svg)]()
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)]
+[![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)]
+[![Security](https://img.shields.io/badge/Security-AES--GCM%20%7C%20ED25519-orange.svg)]
 
 **Self-Sovereign Core (SSC)** is the foundational layer of the uRTC ecosystem. It provides a robust, developer-friendly interface for managing **Decentralized Identities (DID)**, cryptographic keys, and secure data persistence directly within the browser or Node.js environment.
 
