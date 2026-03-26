@@ -1,138 +1,125 @@
-# Self-Sovereign Core (SSC)
-## Empowering Digital Autonomy through Cryptographic Identity
+# 🔐 Self-Sovereign Core (SSC) | Professional Cryptographic Identity Engine
+## The Stateless Foundation for Deterministic & Sovereign Digital Identity (DID)
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
-![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)
-![Security](https://img.shields.io/badge/Security-AES--GCM%20%7C%20ED25519-orange.svg)
+![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)
+![Security](https://img.shields.io/badge/Standard-BIP--39%20%2F%20HKDF-success.svg)
+![Privacy](https://img.shields.io/badge/Privacy-Zero--Knowledge-orange.svg)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Self-Sovereign Core (SSC)** is the foundational layer of the uRTC ecosystem. It provides a robust, developer-friendly interface for managing **Decentralized Identities (DID)**, cryptographic keys, and secure data persistence directly within the browser or Node.js environment.
+Self-Sovereign Core (SSC) is a high-performance, name-agnostic cryptographic orchestration engine. It is designed to be the "Root of Trust" for modern decentralized applications. SSC enables a pure Zero-Knowledge architecture where the user is the sole custodian of their cryptographic destiny.
 
-In an era where data privacy is paramount, SSC allows you to build applications where the user—and only the user—owns their cryptographic keys and identity. No central authority, no middleman, just pure sovereign math.
-
----
-
-## 🚀 Key Features
-
-* **Sovereign Identity Generation:** Create unique, deterministic cryptographic identities in seconds.
-* **Plug-and-Play Storage:** Abstracted storage layer (LocalStorage, IndexedDB, or Memory) with automatic encryption at rest.
-* **WebCrypto Native:** Built on the hardware-accelerated Web Cryptography API for maximum performance and security.
-* **Session Management:** Seamlessly handle temporary session keys and long-term identity keys.
-* **Universal Compatibility:** Designed to integrate perfectly with uRTC and uSignaler.
+Unlike high-level libraries that hide complexity behind insecure defaults, SSC implements a rigorous deterministic derivation hierarchy based on HKDF (RFC 5869). It allows for the total restoration of an identity—including signing and encryption keys—from a single 256-bit entropy source or a BIP-39 mnemonic phrase.
 
 ---
 
-## 📦 Installation
+## 🚀 Key Performance Indicators (KPI)
+
+* Zero-Latency Architecture: Static singleton encoding and frozen instances for maximum execution speed.
+* Deterministic Key Tree: Derive infinite, context-specific sub-keys (Storage, Cloud, P2P) from one master root.
+* Memory Hardening: Automatic Uint8Array sanitization (fill(0)) to mitigate memory-dump vulnerabilities.
+* WebCrypto Isolation: Non-extractable CryptoKey objects—keys are generated and used inside the browser's secure boundary.
+* Protocol Agility: Native versioning (Protocol v1) to ensure long-term compatibility and algorithm upgrades.
+
+---
+
+## 📦 Installation & Setup
 
 ```Javascript
 import { SelfSovereignCore } from './SelfSovereignCore.js';
 ```
+
 ---
 
-## 🛠️ Getting Started: The Basics
+## 🛠️ Implementation Guide: The Sovereign Path
 
-### 1. Initializing the Core
-Initialize SSC with your preferred storage strategy. For persistent web apps, use indexeddb. For temporary testing, use memory.
-
-```Javascript
-const ssc = new SelfSovereignCore({
-    storage: "indexeddb", // Options: 'memory', 'localstorage', 'indexeddb'
-    identity: {
-        alias: "Alice",
-        seed: "optional-high-entropy-seed-phrase" 
-    }
-});
-
-// Wait for the cryptographic engine to prime
-await ssc.initialize();
-console.log("Sovereign Identity Ready:", ssc.id);
-```
-
-### 2. Generating a Secure Communication Key
-SSC excels at managing keys for other protocols (like uRTC). Here is how you generate a 256-bit AES-GCM key for a private session:
+### 1. Generating a New Identity
+Generate a new high-entropy identity. Use the persist option to retrieve the 24-word recovery phrase.
 
 ```Javascript
-// Generate a high-entropy session key
-const sessionKey = await ssc.generateSessionKey("AES-GCM", 256);
+// Direct generation (Instance only)
+const identity = await SelfSovereignCore.generate();
 
-console.log("New Session Key Created:", sessionKey);
+// Generation with BIP-39 Recovery Phrase
+const { instance, mnemonic } = await SelfSovereignCore.generate({ persist: true });
+
+console.log("Sovereign Public ID:", instance.publicID);
+console.log("Recovery Mnemonic:", mnemonic);
 ```
+
+### 2. Stateless Restoration
+Reconstruct the full cryptographic context from a saved mnemonic string or raw entropy.
+
+```Javascript
+const mnemonic = "alpha bravo charlie ..."; // 24 words
+const identity = await SelfSovereignCore.restore(mnemonic);
+
+console.log("Identity Restored:", identity.publicID);
+```
+
+### 3. Authenticated Encryption (AEAD)
+Encrypt data with AES-GCM 256. Use AAD (Additional Authenticated Data) to bind the ciphertext to a specific context, preventing replay or substitution attacks.
+
+```Javascript
+const data = "Secret sovereign data";
+const context = "vault_v1_user_42";
+
+// Encryption
+const { ciphertext, iv } = await identity.encrypt(data, SelfSovereignCore.encode(context));
+
+// Decryption (Throws if AAD/context is incorrect)
+const plaintextBytes = await identity.decrypt(ciphertext, iv, SelfSovereignCore.encode(context));
+const originalText = new TextDecoder().decode(plaintextBytes);
+```
+
+### 4. Deterministic Key Derivation (HKDF)
+Generate a 256-bit sub-key for any specific use-case without exposing the Master Key.
+
+```Javascript
+// Create a key for a specific cloud backup module
+const cloudKeyRaw = await identity.derive("module.backup.aws");
+
+// Result is a Uint8Array(32) ready for external cryptographic use.
+```
+
 ---
 
-## 💡 Advanced Use Cases
+## 🔧 Technical API Reference
 
-### Case A: Encrypting Local Sensitive Data
-Use SSC to protect user data before saving it to a database or local storage.
+### Static Methods (Factories)
+* `SelfSovereignCore.generate({ persist, protocol })` : Generates a new identity.
+* `SelfSovereignCore.restore(source, version)` : Restores from mnemonic string or Uint8Array.
+* `SelfSovereignCore.encode(string)` : Optimized UTF-8 to Uint8Array helper.
 
-```Javascript
-const sensitiveData = "This is a private note only I should see.";
+### Instance Accessors (Read-Only)
+* `.publicID` : The URL-safe public string identifier (e.g., "1.base64_hash").
+* `.version` : The protocol version used by the instance.
+* `.curProto` : The full cryptographic specification of the active protocol.
 
-// SSC handles the encryption using the internal Identity Key
-const encryptedBlob = await ssc.encryptLocal(sensitiveData);
+### Instance Methods
+* `.sign(data)` : HMAC-SHA256 digital signature. Returns Promise<ArrayBuffer>.
+* `.encrypt(data, [aad])` : AES-GCM encryption. Returns { ciphertext, iv }.
+* `.decrypt(ciphertext, iv, [aad])` : AES-GCM decryption.
+* `.derive(context)` : Contextual HKDF derivation. Returns Uint8Array(32).
+* `.destroy()` : Wipes keys and identifier from the instance.
 
-// Later, retrieve and decrypt
-const originalText = await ssc.decryptLocal(encryptedBlob);
-console.log(originalText); // "This is a private note..."
-```
-
-### Case B: Digital Signatures for Message Integrity
-Prove that a message was sent by you without revealing your private keys.
-
-```Javascript
-const message = "I authorize the transfer of 500 uTokens.";
-
-// Sign the message using ED25519 / ECDSA
-const signature = await ssc.sign(message);
-
-// Send the message + signature to a peer
-// The peer can verify using your public ID
-const isValid = await ssc.verify(message, signature, ssc.id);
-console.log("Is authenticity verified?", isValid);
-```
 ---
 
-## 🏗️ Architecture Detail
+## 🛡️ Security Specification (Protocol v1)
 
-SSC operates on a **Three-Tier Security Model**:
-
-| Layer | Function | Algorithm |
+| Feature | Primitive | Implementation |
 | :--- | :--- | :--- |
-| **Identity** | Long-term sovereign proof of personhood | ED25519 / RSA-PSS |
-| **Session** | Ephemeral keys for high-speed P2P transport | AES-GCM (256-bit) |
-| **Vault** | Secure storage of keys and user settings | PBKDF2 + AES-KW |
+| Root Entropy | BIP-39 | 256-bit (24 words) |
+| Derivation (KDF) | HKDF | SHA-256 (RFC 5869) |
+| Signing | HMAC | SHA-256 |
+| Encryption | AES-GCM | 256-bit Key / 96-bit IV |
+| ID Mapping | SHA-256 | Deterministic Public Hash |
 
 ---
 
-## 🔧 API Documentation (Quick Reference)
-
-### constructor(options)
-* options.storage: The backend used for persistence (memory, localstorage, indexeddb).
-* options.identity: Object containing alias and optional seed for deterministic keys.
-
-### async initialize()
-Primes the WebCrypto engine, recovers keys from storage, or generates new ones if none exist.
-
-### async exportPublicKey()
-Returns the public portion of the identity key in a shareable format (JWK or Raw).
-
-### async encryptLocal(data) / async decryptLocal(blob)
-Standard methods for Identity-Locked data encryption, ensuring local privacy.
+## 📈 SEO & Developer Keywords
+Sovereign Identity Javascript, WebCrypto Wrapper, BIP-39 Implementation, Deterministic Key Derivation JS, HKDF SHA-256, Stateless Identity Recovery, AES-GCM 256 Encryption, Non-custodial Auth Engine.
 
 ---
 
-## 🌟 Why Use SSC?
-
-1. **Zero Trust:** You don't have to trust your server. All encryption happens client-side.
-2. **Performance:** Offloads heavy crypto to the browser's native C++ implementation via WebCrypto.
-3. **Future-Proof:** Modular design allows for switching algorithms (e.g., Post-Quantum) without breaking your app logic.
-
----
-
-## ⚖️ License
-
-Copyright © 2026 **Hold'inCorp**. Distributed under the Apache-2.0 License.
-
----
-
-> **Ready to take control?**
-> Integrate SSC today and give your users the sovereignty they deserve.
-> *“My Keys, My Identity, My Data.”*
+> Built for the Sovereign Web.
+> "In math we trust, in sovereignty we live."
